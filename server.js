@@ -37,8 +37,20 @@ app.get('/home', (_, res) => {
 })
 
 app.get('/available', (_, res) => {
-  BooksStatus.show_all_books_status(res);
-})
+  Books.find({ status: 'available' }, 'title status')
+    .then((books) => {
+      const availableBooks = books.map((book) => ({
+        title: book.title,
+        status: book.status
+      }));
+      res.json(availableBooks);
+    })
+    .catch((err) => {
+      console.error('Error fetching available books:', err);
+      res.status(500).send('Internal Server Error');
+    });
+});
+
 
 app.get('/books', (_, res) => {
   Books.show_books()
@@ -47,8 +59,16 @@ app.get('/books', (_, res) => {
 })
 
 app.get('/authors', (_, res) => {
-  Authors.show_all_authors(res);
-})
+  Authors.find({}, 'name lifespan')
+    .then((authors) => {
+      res.json(authors);
+    })
+    .catch((err) => {
+      console.error('Error fetching authors:', err);
+      res.status(500).send('Internal Server Error');
+    });
+});
+
 
 app.get('/book_dtls', (req, res) => {
   BookDetails.show_book_dtls(res, req.query.id);
